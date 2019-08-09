@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+    <head>
+        <title>Caluladora via JS</title>
+        <link rel="stylesheet" type="text/css" href="style.css">
+    </head>
+    <body class="centro" >
+        <div class='main'>
+            <div class='visor centro'>
+                
+                <input autofocus=""type="text" name="visor" id="operacao-visor" onblur="" >
+            </div>
+                <div class='teclado'> 
+                    <div class='teclado-numerico'>
+
+                    </div>  
+
+                    <div class='teclado-operadores'>
+                      
+                    </div>
+                </div>
+        </div>
+        <script>
+            var inicializacao =  document.querySelector('body');
+            var expressao_final = [],precendencia=[];
+            var visor = document.querySelector('#operacao-visor');
+
+            function limpar_input(){
+                let visor = document.querySelector('#operacao-visor');
+                visor.value="";
+                precendencia=[];
+            }
+            function insert_input(obj){
+                let expressao =  visor.value;
+                if(precendencia[precendencia.length-1]==')'){
+                    visor.value+='*'+obj.textContent;
+                }         
+                else
+                    visor.value+=obj.textContent;           
+            }
+            function condicao_parenteses(obj){
+                let expressao =  visor.value;
+                let indice =  precendencia.indexOf('(');
+                // devo achar todos os parenteses, e calcular o quanto é pra fechar.
+                if(parseInt(expressao[expressao.length-1]) && indice!=-1){
+                    precendencia.push(')');
+                    console.log(precendencia)
+                    visor.value+=')';
+                }
+                else if(expressao[expressao.length-1]==')'){
+                    var exp_aux =  expressao.split('');
+                    var valido =false;
+                    for(let i=0;i<exp_aux.length;i++){
+                       if(exp_aux[i]=='('){
+                            
+                            let j=i+1;
+                            while(exp_aux[j]!=')' && j<exp_aux.length){
+                                j++;
+                            }
+                            if(j<exp_aux.length){
+                                exp_aux[i] = 'x';
+                                exp_aux[j]='x';
+                                valido=true
+                            }
+                            else
+                                valido=false;   
+                       }
+                    }
+                    if(!valido){
+                        precendencia.push(')');
+                        visor.value+=')';
+                    }
+                    else{
+                        precendencia.push('(');
+                        visor.value+='*(';
+                    }
+
+                   console.log("copia ="+exp_aux);    
+                }
+                else{
+                    precendencia.push('(');
+                    console.log(precendencia);
+                    visor.value+='(';
+                }
+            }
+            inicializacao.onload = function(){
+                var teclado_numerico =  document.querySelector('.teclado-numerico');
+                var teclado_operador =  document.querySelector('.teclado-operadores');
+                create_teclado_numerico()
+                create_teclado_operador(teclado_operador);
+                function create_teclado_numerico(){
+                    
+                    create_numeros(7);
+                    create_numeros(8);
+                    create_numeros(9);   
+
+                    create_numeros(6);
+                    create_numeros(5);
+                    create_numeros(4);
+
+                    create_numeros(1);
+                    create_numeros(2);
+                    create_numeros(3);
+
+                    create_numeros(0);
+                
+
+                }
+                function create_teclado_operador(obj){
+                    operador =  create_operadores('+',' + ');
+                    obj.appendChild(operador);
+
+                    operador =  create_operadores('-',' - ');
+                    obj.appendChild(operador);
+
+                    operador =  create_operadores('/','  / ');
+                    obj.appendChild(operador);
+
+                    operador =  create_operadores('*','  * ');
+                    obj.appendChild(operador);
+
+                    operador =  create_operadores('=','=');
+                    operador.setAttribute('onclick'," ");
+                    operador.setAttribute('onclick','limpar_input()');
+                    obj.appendChild(operador);
+
+                    operador =  create_operadores('c',' c' );
+                    operador.setAttribute('onclick'," ");
+                    operador.setAttribute('onclick','limpar_input()');
+                    obj.appendChild(operador);
+
+                    operador =  create_operadores(' ',' ( )');
+                    operador.setAttribute('onclick'," ");
+                    operador.setAttribute('onclick','condicao_parenteses(this)');
+                    obj.appendChild(operador);
+                     
+                    operador =  create_operadores(' ',' [ ] ');
+                    operador.setAttribute('onclick'," ");
+                    operador.setAttribute('onclick','condicao_parenteses(this)');
+                    obj.appendChild(operador);
+
+                    operador =  create_operadores(' ',' { } ');
+                    operador.setAttribute('onclick'," ");
+                    operador.setAttribute('onclick','condicao_parenteses(this)');
+                    obj.appendChild(operador);
+
+                    
+       
+                   
+                    
+                }
+                
+                function create_operadores(id,texto){
+                    var element = document.createElement('div');
+                    element.insertAdjacentHTML('afterbegin',texto);
+                    element.setAttribute("id",id);
+                    element.setAttribute('onclick','insert_input(this);');
+                    element.setAttribute("class",'formato-operador');
+                    return element;
+                }
+                function create_numeros(elem){
+                    var numero = document.createElement("div");
+                    numero.insertAdjacentHTML('afterbegin',elem);
+                    numero.setAttribute("class",'formato-numero')
+                    numero.setAttribute("id",elem)
+                    numero.setAttribute('onclick','insert_input(this);');
+                    teclado_numerico.appendChild(numero);
+                }
+            }
+        </script>
+    </body>
+</html>
