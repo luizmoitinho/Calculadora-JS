@@ -12,7 +12,7 @@
             function insert_input(obj){
                 let expressao =  visor.value;
                 if(precendencia[precendencia.length-1]==')'){
-                    visor.value+='*'+obj.textContent;
+                    visor.value+=obj.value;
                 }         
                 else
                     visor.value+=obj.textContent;           
@@ -24,31 +24,31 @@
                 // devo achar todos os parenteses, e calcular o quanto é pra fechar.
                 //if(){
                     if(isNumber && indice!=-1){
-                        precendencia.push(')');
+                        precendencia.push(' ) ');
                         console.log(precendencia)
-                        visor.value+=')';
+                        visor.value+=' ) ';
                     }
                     else if(expressao[expressao.length-1]==')'){
                         var exp_aux =  expressao.split('');
                         if(!isExpressao(exp_aux,'(',')')){
                             precendencia.push(')');
-                            visor.value+=')';
+                            visor.value+=' ) ';
                         }
                         else{
                             precendencia.push('(');
-                            visor.value+='*(';
+                            visor.value+=' * ( ';
                         }
 
                     console.log("copia ="+exp_aux);    
                     }
                     else if(isNumber){
                         precendencia.push('(');
-                        visor.value+='*(';
+                        visor.value+=' * ( ';
                     }
                     else{
                         precendencia.push('(');
                         console.log(precendencia);
-                        visor.value+='(';
+                        visor.value+=' ( ';
                     }
                 //}
             }
@@ -82,7 +82,7 @@
                 let isNumber = parseInt(expressao[expressao.length-1]) ||parseInt(expressao[expressao.length-1])==0 ? true:false;
                 if(precendencia.indexOf(']')!=-1){
                     precendencia.push('[');
-                    visor.value += '*[';
+                    visor.value += ' * [';
                 }
                 if(precendencia.indexOf('[')!=-1){
                     let exp_aux1 =  precendencia.slice();
@@ -98,19 +98,17 @@
                 }
                 else if(isNumber){
                     precendencia.push('[');
-                    visor.value += '*[';
+                    visor.value += ' * [';
                 }
                 else if(expressao[expressao.length-1]=="" || expressao[expressao.length-1]==null){
                     precendencia.push('[');
                     visor.value += '[';
                 }
-                
                 else {
                     msgErro('#info-visor');
                 }
             }
             function msgErro(elemento){
-               // document.querySelector(elemento).innerHTML = 'Operação inválida';
                alert("Operação inválida!");
             }
             function condicao_delimitador(exp,item){
@@ -132,9 +130,10 @@
                  }
                  return valido;
             }
-            inicializacao.onload = function(){
+            inicializacao.onload = function(){ 
                 var teclado_numerico =  document.querySelector('.teclado-numerico');
                 var teclado_operador =  document.querySelector('.teclado-operadores');
+                document.querySelector("#operacao-visor").value="2 * ( - 5 + ( 10 * 7 ) * 2 )";
                 create_teclado_numerico(teclado_numerico)
                 create_teclado_operador(teclado_operador);
                 function create_teclado_numerico(obj){
@@ -161,25 +160,25 @@
 
                 }
                 function create_teclado_operador(obj){
-                    operador =  create_operadores('+',' + ','');
+                    operador =  create_operadores(' + ',' + ','');
                     obj.appendChild(operador);
 
-                    operador =  create_operadores('-',' - ','');
+                    operador =  create_operadores(' - ',' - ','');
                     obj.appendChild(operador);
 
-                    operador =  create_operadores('/','  /  ','');
+                    operador =  create_operadores(' / ',' / ','');
                     obj.appendChild(operador);
 
-                    operador =  create_operadores('*','  * ','');
+                    operador =  create_operadores(' * ',' * ','');
                     obj.appendChild(operador);
 
-                    operador =  create_operadores('=','=','calcular()');
+                    operador =  create_operadores(' = ',' = ','calcular()');
                     obj.appendChild(operador);            
-                }
-                
+                }   
                 function create_operadores(id,texto,func){
                     var element = document.createElement('button');
                     element.insertAdjacentHTML('afterbegin',texto);
+                    element.setAttribute("value"," "+texto+" ");
                     element.setAttribute("id",id);
                     if(func=="")
                         element.setAttribute('onclick','insert_input(this);');
@@ -196,31 +195,35 @@
                     numero.setAttribute('onclick','insert_input(this);');
                     teclado_numerico.appendChild(numero);
                 }
-
-
             }
-
-
-                        
             function calcular(){
                 var expressao = document.querySelector('#operacao-visor').value;
-                var saida="", pilha_temp = new Array();
+                expressao = expressao.split(" ");
+                console.log(expressao);
+                var saida = new Array(), pilha_temp = new Array();
                 for(let i=0;i<expressao.length;i++){
                     if(parseInt(expressao[i])){
+                        //nada - 10 
                         while(operadores.indexOf(expressao[i])==-1 && delimitadores.indexOf(expressao[i])==-1 && i<expressao.length){
                             //captura o valor com mais de uma casa decimal.
-                            saida+=expressao[i];
+                            saida.push(expressao[i]);
                             i++;  
                         }
-                        console.log("s "+saida);
+                       // console.log("s :"+saida);
                         i--;
                     }
                     else if(operadores.indexOf(expressao[i])!=-1){
-                        // é um simbolo
-                        if(pilha_temp.length==0)
+                        if( (!parseInt(expressao[i-1]))&& (expressao[i]=='-' || expressao[i]=='+' ) && (parseInt(expressao[i+1]) || !expressao[i+1])){
+                            alert("")
+                            saida.push(expressao[i]+expressao[i+1]);
+                            i+=1;
+                        }
+                       else if(pilha_temp.length==0){
                             pilha_temp.push(expressao[i]);
+                            console.log(">"+pilha_temp[pilha_temp.length-1])
+                        }
                         else if(maior_precendencia(pilha_temp[pilha_temp.length-1],expressao[i])){
-                            saida += pilha_temp.pop();
+                            saida.push(pilha_temp.pop());
                             pilha_temp.push(expressao[i]);
                         }
                         else
@@ -230,58 +233,70 @@
                         pilha_temp.push(expressao[i]);
                     else if(expressao[i]==')'){
                         while(pilha_temp[pilha_temp.length-1]!='('){
-                            saida+=pilha_temp.pop();
+                            saida.push(pilha_temp.pop());
                         }
                         pilha_temp.pop();
                     }
+                    //console.log(saida)
                 }
                 //ajusta o valor final para chamada na notacaoPolonesa();
                 while(pilha_temp.length!=0)
-                    saida+=" "+pilha_temp.pop();
-                document.querySelector('#operacao-visor').value = notacao_polonesa(saida);
+                    saida.push(pilha_temp.pop());
+                console.log("Saida: "+saida);
+                //console.log("Pilha: "+pilha_temp)
+               document.querySelector('#operacao-visor').value = desempilha_calcula(saida);
             }
 
             function maior_precendencia(s1,s2){
-              if(((s1 == '*' && s2=="/") || (s1 == '/' && s2=="*")))
+                if(((s1 == '*' && s2=="/") || (s1 == '/' && s2=="*")))
                     return false;
-              if((s1 == '+' && s2=="-") || (s1 == '-' && s2=="+"))
-                   return false; 
-              if(operadores.indexOf(s1) > operadores.indexOf(s2))
-                  return true;
-              else
-                return false
+                if(s1 == '+' && s2=="-")
+                    return false; 
+                if(s1 == '-' && s2=="+")
+                    return false;
+                if(operadores.indexOf(s1) > operadores.indexOf(s2))
+                    return true;
+                else
+                    return false
             }
-            function notacao_polonesa(expressao){
+            function desempilha_calcula(expressao){
                 //var array_expressao = expresao.split(' ');
-                expressao =  expressao.split(" ");
-                console.log(expressao)
                 var pilha_temp = new Array();
                 for(let i=0;i<expressao.length;i++){
-                    if(operadores.indexOf(expressao[i])==-1){
+                    if(expressao[i]=="") continue;
+                    else if(operadores.indexOf(expressao[i])==-1){
                         pilha_temp.push(expressao[i]);
+                        console.log(expressao[i])
                     }
                     else{
                         //Achou um operador, logo efetuar a operação entre os valores e acrescentar ao fundo da pilha
                         let n1,n2;
                         n2 =  pilha_temp.pop();
                         n1 =  pilha_temp.pop();
-                        console.log("op"+n1+''+expressao[i]+''+ n2)
+                        console.log("# "+n1+''+expressao[i]+''+ n2);
                         switch(expressao[i]){
                             case '+':
                                 pilha_temp.push(parseFloat(n1)+parseFloat(n2));
-                                console.log("pilha :"+pilha_temp);
+                                console.log("pilha 1:"+pilha_temp);
                                 break;
                             case '-':
                                 pilha_temp.push(parseFloat(n1)-parseFloat(n2));
+                                console.log("pilha 2:"+pilha_temp);
                                 break;
                             case '*':
                                 pilha_temp.push(parseFloat(n1)*parseFloat(n2));
+                                console.log("pilha 3:"+pilha_temp);
                                 break;
                             case '/':
                                 pilha_temp.push(parseFloat(n1)/parseFloat(n2));
-                                break;
-                        }
-                    }                    
+                                console.log("pilha 4:"+pilha_temp);
+                                break;  
+                            default:
+                                pilha_temp.push(parseFloat(n1)+parseFloat(n2));
+                                break;    
+                                        
+                         }
+                    }                
 
                 }
                 if(parseFloat(pilha_temp[0]))
@@ -289,57 +304,4 @@
                 else
                     return pilha_temp[0].toFixed(2);
             }
-/*
-            function Tarvore(){
-                var self = this;
-                var T = 23;
 
-                this.insere1 = function(item){
-                    console.log("item: "+item);
-                    self.T = self.insere2(self.T,item,null)
-                }
-                this.insere2 = function(t,item,pai){
-                    if(t==null){
-                        console.log('if: 1');
-                        t =  new Tnodo();
-                        t.criaNodo(item,pai); 
-                    }
-                    else{
-                        console.log('if: 2');
-                        pai =t;
-                        if(parseInt(item)){
-                            t.esq = this.insere2(t.esq,item,pai);
-                        }
-                        else if(operadores.indexOf(item) != -1 ){
-                            t.dir = this.insere2(t.dir,item,pai);
-                            console.log('if:  3');
-                        }
-                    }
-                    return t;
-                }
-            }
-            
-            function Tnodo(){
-                self = this;
-                this.esq;
-                this.dir;
-                this.valor;
-                this.pai;
-                this.criaNodo = function(valor,pai){
-                    self.esq=null;
-                    self.dir=null;
-                    self.valor=valor;
-                    self.pai=pai;
-                }
-            }
-
-
-
-
-            function preOrdem(nodo){
-                if(nodo!=null){
-                    console.log(" - "+nodo.valor);
-                    preOrdem(nodo.esq);
-                    preOrdem(nodo.dir);
-                }
-            }*/
