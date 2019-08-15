@@ -24,31 +24,31 @@
                 // devo achar todos os parenteses, e calcular o quanto é pra fechar.
                 //if(){
                     if(isNumber && indice!=-1){
-                        precendencia.push(' ) ');
+                        precendencia.push(')');
                         console.log(precendencia)
-                        visor.value+=' ) ';
+                        visor.value+=')';
                     }
                     else if(expressao[expressao.length-1]==')'){
                         var exp_aux =  expressao.split('');
                         if(!isExpressao(exp_aux,'(',')')){
                             precendencia.push(')');
-                            visor.value+=' ) ';
+                            visor.value+=')';
                         }
                         else{
                             precendencia.push('(');
-                            visor.value+=' * ( ';
+                            visor.value+='*(';
                         }
 
                     console.log("copia ="+exp_aux);    
                     }
                     else if(isNumber){
                         precendencia.push('(');
-                        visor.value+=' * ( ';
+                        visor.value+='*(';
                     }
                     else{
                         precendencia.push('(');
                         console.log(precendencia);
-                        visor.value+=' ( ';
+                        visor.value+='(';
                     }
                 //}
             }
@@ -84,9 +84,14 @@
                     precendencia.push('[');
                     visor.value += ' * [';
                 }
-                if(precendencia.indexOf('[')!=-1){
+                else if(isExpressao(exp_aux1,'[',']')){
+                    if()
+                        precendencia.push('[');
+                        visor.value += ' * [';
+
+                }
+                else if(precendencia.indexOf('[')!=-1){
                     let exp_aux1 =  precendencia.slice();
-                    exp_aux1.push(']');
                     //existe um colchete aberto e o ultimo valor digitado é um numero
                     if(isExpressao(exp_aux1,'(',')')&& (isExpressao(exp_aux1,'[',']'))){
                         precendencia.push(']');
@@ -213,11 +218,11 @@
                         i--;
                     }
                     else if(operadores.indexOf(expressao[i])!=-1){
-                        if( (!parseInt(expressao[i-1]))&& (expressao[i]=='-' || expressao[i]=='+' ) && (parseInt(expressao[i+1]) || !expressao[i+1])){
+                       if( (!parseInt(expressao[i-1]))&& (expressao[i]=='-' || expressao[i]=='+' ) && (parseInt(expressao[i+1]) || !expressao[i+1])){
                             alert("")
                             saida.push(expressao[i]+expressao[i+1]);
                             i+=1;
-                        }
+                       }
                        else if(pilha_temp.length==0){
                             pilha_temp.push(expressao[i]);
                             console.log(">"+pilha_temp[pilha_temp.length-1])
@@ -237,7 +242,7 @@
                         }
                         pilha_temp.pop();
                     }
-                    //console.log(saida)
+                    console.log(saida)
                 }
                 //ajusta o valor final para chamada na notacaoPolonesa();
                 while(pilha_temp.length!=0)
